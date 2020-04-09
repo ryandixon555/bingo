@@ -1,4 +1,4 @@
-## fun-food-friends
+## bingo
 A game of bingo made using ReactJS. Connects to a firebase backend.
 
 ## To Run:
