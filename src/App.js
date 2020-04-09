@@ -63,7 +63,7 @@ const BingoItem = styled.div`
   font-size: 22px;
   width: 80%;
   height: 25%;
-  min-height: 300px;
+  min-height: 200px;
   background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%);
   color: white;
   margin: 10px;
@@ -83,7 +83,7 @@ const CompletedItem = styled.div`
   font-size: 22px;
   width: 80%;
   height: 25%;
-  min-height: 300px;
+  min-height: 200px;
   background: linear-gradient(45deg, #7F8C8D 30%, #CACFD2 90%);
   color: white;
   margin: 10px;
@@ -93,7 +93,39 @@ const CompletedItem = styled.div`
     width: 30%;
   }
 `
+const DisplayScoreContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  position: relative;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  margin: 20px;
 
+  @media (min-width: 640px){
+    flex-direction: column;
+  }
+`
+
+const DisplayScore = styled.div`
+  position: relative;
+  width: 100%;
+  background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%);
+  color: white;
+  margin: 20px;
+  padding: 20px;
+`
+
+const DisplayScoreHeader = styled.div`
+  font-size: 22px;
+  margin: 10px;
+`
+
+const DisplayScoreParagraph = styled.div`
+  font-size: 18px;
+  margin: 10px;
+`
 class App extends React.Component {
 
   constructor(props) {
@@ -215,34 +247,35 @@ class App extends React.Component {
       }
     return (
     <MainContainer>
-      {renderRow.map(item => {
-        const id = item.id;
-       
-        if (this.state[id] === true) {
-          return (
-              <CompletedItem id={id}>
-                <CardContent></CardContent>
-              </CompletedItem>
-          )
-        }
-        else {
-          return (
-            <BingoItem id={item.id} onClick={this.markComplete}> 
-              <CardContent>
-                <Typography variant='button' id={item.id} onClick={this.markComplete}>
-                  {item.item}
-                </Typography>
-              </CardContent>
-            </BingoItem>
-          )
-        }
-      })
+      {
+        renderRow.map(item => {
+          const id = item.id;
+        
+          if (this.state[id] === true) {
+            return (
+                <CompletedItem id={id}>
+                  <CardContent></CardContent>
+                </CompletedItem>
+            )
+          }
+          else {
+            return (
+              <BingoItem id={item.id} onClick={this.markComplete}> 
+                <CardContent>
+                  <Typography variant='button' id={item.id} onClick={this.markComplete}>
+                    {item.item}
+                  </Typography>
+                </CardContent>
+              </BingoItem>
+            )
+          }
+        })
       }
-      </MainContainer>
+    </MainContainer>
     )
   }
 
-  render(score) {
+  render() {
   return (
     <>
       <BingoHeader />
@@ -251,28 +284,27 @@ class App extends React.Component {
           Score: { this.state.score }
         </ScoreContainer>
         <DateContainer>
-          <input type="text" name="date" placeholder="date" onChange={this.handleDate} value={this.state.date}/> 
+          <input type="text" name="date" class="form-styling" placeholder="Date" onChange={this.handleDate} value={this.state.date}/> 
         </DateContainer>
         <Submit>
-          <input type="text" name="submit" placeholder="Submit" onClick={this.handleSubmit} />
+          <input type="text" class="form-styling" name="submit" placeholder="Submit" onClick={this.handleSubmit} />
         </Submit>
       </InfoContainer>
-      <section className='display-item'>
+      <DisplayScoreContainer>
         <div className="wrapper">
           <ul>
             {this.state.items.map((item) => {
               return (
-                <li key={item.id}>
-                  <h3>score {item.score}</h3>
-                  <p>date {item.date}
-                    <button onClick={() => this.removeItem(item.id)}>Remove Item</button>
-                  </p>
-                </li>
+                <DisplayScore key={item.id}>
+                  <DisplayScoreHeader>score {item.score}</DisplayScoreHeader>
+                  <DisplayScoreParagraph>date {item.date}</DisplayScoreParagraph>
+                  <button onClick={() => this.removeItem(item.id)}>Remove Entry</button>
+                </DisplayScore>
               )
             })}
           </ul>
         </div>
-      </section>
+      </DisplayScoreContainer>
       {this.bingoRow(1)}
       {this.bingoRow(2)}
       {this.bingoRow(3)}
@@ -282,96 +314,3 @@ class App extends React.Component {
 }
 
 export default App;
-// import React, { Component } from 'react';
-// import './App.css';
-// import firebase from './firebase.js';
-
-// class App extends Component {
-//   constructor() {
-//     super();
-//     this.state = {
-//       currentItem: '',
-//       username: '',
-//       items: []
-//     }
-//     this.handleChange = this.handleChange.bind(this);
-//     this.handleSubmit = this.handleSubmit.bind(this);
-//   }
-//   handleChange(e) {
-//     this.setState({
-//       [e.target.name]: e.target.value
-//     });
-//   }
-//   handleSubmit(e) {
-//     e.preventDefault();
-//     const itemsRef = firebase.database().ref('items');
-//     const item = {
-//       title: this.state.currentItem,
-//       user: this.state.username
-//     }
-//     itemsRef.push(item);
-//     this.setState({
-//       currentItem: '',
-//       username: ''
-//     });
-//   }
-//   componentDidMount() {
-//     const itemsRef = firebase.database().ref('items');
-//     itemsRef.on('value', (snapshot) => {
-//       let items = snapshot.val();
-//       let newState = [];
-//       for (let item in items) {
-//         newState.push({
-//           id: item,
-//           title: items[item].title,
-//           user: items[item].user
-//         });
-//       }
-//       this.setState({
-//         items: newState
-//       });
-//     });
-//   }
-//   removeItem(itemId) {
-//     const itemRef = firebase.database().ref(`/items/${itemId}`);
-//     itemRef.remove();
-//   }
-//   render() {
-//     return (
-//       <div className='app'>
-//         <header>
-//             <div className="wrapper">
-//               <h1>Fun Food Friends</h1>
-                             
-//             </div>
-//         </header>
-//         <div className='container'>
-//           <section className='add-item'>
-//                 <form onSubmit={this.handleSubmit}>
-//                   <input type="text" name="username" placeholder="date" onChange={this.handleChange} value={this.state.username} />
-//                   <input type="text" name="currentItem" placeholder="score" onChange={this.handleChange} value={this.state.currentItem} />
-//                   <button>Add Item</button>
-//                 </form>
-//           </section>
-//           <section className='display-item'>
-//               <div className="wrapper">
-//                 <ul>
-//                   {this.state.items.map((item) => {
-//                     return (
-//                       <li key={item.id}>
-//                         <h3>score {item.title}</h3>
-//                         <p>date {item.user}
-//                           <button onClick={() => this.removeItem(item.id)}>Remove Item</button>
-//                         </p>
-//                       </li>
-//                     )
-//                   })}
-//                 </ul>
-//               </div>
-//           </section>
-//         </div>
-//       </div>
-//     );
-//   }
-// }
-// export default App;
