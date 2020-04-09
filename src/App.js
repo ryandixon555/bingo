@@ -45,7 +45,15 @@ const DateContainer = styled.div`
   position: relative;
   font-size: 26px;
 `
-
+const Submit = styled.div`
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 26px;
+  border: 5px solid black;
+`
 const BingoItem = styled.div`
   display: flex;
   position: relative;
@@ -89,7 +97,9 @@ const CompletedItem = styled.div`
 class App extends React.Component {
 
   constructor(props) {
+
     super(props);
+
     this.state = {
       0: false,
       1: false,
@@ -115,10 +125,63 @@ class App extends React.Component {
       "name9": null,
       "name10": null,
       "name11": null,
-      score: 0
+      score: 0,
+      date: '',
+      items: []
     };
 
+    this.handleDate = this.handleDate.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
+  handleDate(e) {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    const itemsRef = firebase.database().ref('items');
+
+    const item = {
+      score: this.state.score,
+      date: this.state.date
+    }
+
+    itemsRef.push(item);
+
+    this.setState({
+      score: '',
+      date: ''
+    });
+  }
+
+  componentDidMount() {
+    const itemsRef = firebase.database().ref('items');
+
+    itemsRef.on('value', (snapshot) => {
+      let items = snapshot.val();
+      let newState = [];
+
+      for (let item in items) {
+        newState.push({
+          id: item,
+          score: items[item].score,
+          date: items[item].date
+        });
+      }
+
+      this.setState({
+        items: newState
+      });
+      
+    });
+  }
+
+  removeItem(itemId) {
+    const itemRef = firebase.database().ref(`/items/${itemId}`);
+    itemRef.remove();
   }
 
   markComplete = e => {
@@ -188,9 +251,28 @@ class App extends React.Component {
           Score: { this.state.score }
         </ScoreContainer>
         <DateContainer>
-          Date: 
+          <input type="text" name="date" placeholder="date" onChange={this.handleDate} value={this.state.date}/> 
         </DateContainer>
+        <Submit>
+          <input type="text" name="submit" placeholder="Submit" onClick={this.handleSubmit} />
+        </Submit>
       </InfoContainer>
+      <section className='display-item'>
+        <div className="wrapper">
+          <ul>
+            {this.state.items.map((item) => {
+              return (
+                <li key={item.id}>
+                  <h3>score {item.score}</h3>
+                  <p>date {item.date}
+                    <button onClick={() => this.removeItem(item.id)}>Remove Item</button>
+                  </p>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </section>
       {this.bingoRow(1)}
       {this.bingoRow(2)}
       {this.bingoRow(3)}
